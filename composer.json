@@ -15,10 +15,7 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {},
-    "config": {
-        "platform": {
-            "php": "8.0^"
-        }
+    "require": {
+        "php": "^8.0"
     }
 }

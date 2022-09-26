@@ -1,0 +1,24 @@
+{
+    "name": "alexanderthegreat96/debugger-utility-alpha",
+    "description": "Typo3 Debugger Utility Var Dumper port for every project",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Alexanderthegreat96\\DebuggerUtilityAlpha\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alexandru Lupaescu",
+            "email": "alexandrulupaescu@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "config": {
+        "platform": {
+            "php": "8.0^"
+        }
+    }
+}

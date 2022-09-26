@@ -8,7 +8,7 @@
  * (c) 2019 Wolf Utz
  */
 
-namespace Alexanderthegreat96\DebuggerUtilityAlpha;
+namespace Alexanderthegreat96\DebuggerUtilityAlpha\Utility;
 
 /**
  * Class OutputUtility.

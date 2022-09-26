@@ -9,7 +9,7 @@
  */
 
 namespace Alexanderthegreat96\DebuggerUtilityAlpha;
-
+use Alexanderthegreat96\DebuggerUtilityAlpha\Utility\OutputUtility;
 /**
  * This class is a port of the corresponding class of the TYPO3 CMS (v9.5).
  * All credits go to the TYPO3 team.
@@ -20,7 +20,7 @@ class DebuggerUtility
 {
     const PLAINTEXT_INDENT = '   ';
     const HTML_INDENT = '&nbsp;&nbsp;&nbsp;';
-    const DEFAULT_TITLE = 'Extbase Variable Dump';
+    const DEFAULT_TITLE = 'Debugger Alpha Variable Dump';
 
     /**
      * @var array

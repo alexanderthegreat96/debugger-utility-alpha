@@ -77,7 +77,7 @@ class DebuggerUtility
      *
      * @throws \ReflectionException
      */
-    protected static function renderDump($value, $level, $plainText, $ansiColors)
+    protected static function renderDump($value, $level, $plainText, $ansiColors, $collapsed)
     {
         $dump = '';
         if (is_string($value)) {
@@ -117,12 +117,12 @@ class DebuggerUtility
         } elseif (null === $value || is_resource($value)) {
             $dump = gettype($value);
         } elseif (is_array($value)) {
-            $dump = self::renderArray($value, $level + 1, $plainText, $ansiColors);
+            $dump = self::renderArray($value, $level + 1, $plainText, $ansiColors,$collapsed);
         } elseif (is_object($value)) {
             if ($value instanceof \Closure) {
-                $dump = self::renderClosure($value, $level + 1, $plainText, $ansiColors);
+                $dump = self::renderClosure($value, $level + 1, $plainText, $ansiColors,$collapsed);
             } else {
-                $dump = self::renderObject($value, $level + 1, $plainText, $ansiColors);
+                $dump = self::renderObject($value, $level + 1, $plainText, $ansiColors,$collapsed);
             }
         }
 
@@ -141,8 +141,10 @@ class DebuggerUtility
      *
      * @throws \ReflectionException
      */
-    protected static function renderArray($array, $level, $plainText = false, $ansiColors = false)
+    protected static function renderArray($array, $level, $plainText = false, $ansiColors = false,$collapsed = true)
     {
+        $collapsed = $collapsed ? '': 'checked="true"';
+
         $content = '';
         $count = count((array) $array);
         if ($plainText) {
@@ -161,7 +163,7 @@ class DebuggerUtility
             $content = self::renderCollection($array, $level, $plainText, $ansiColors);
             if (!$plainText) {
                 $header = ($level > 1 && $count > 0 ?
-                        '<input type="checkbox" /><span class="extbase-debug-header" >' : '<span>').$header.'</span >';
+                        '<input type="checkbox" '.$collapsed.'/><span class="extbase-debug-header" >' : '<span>').$header.'</span >';
             }
         }
         if ($level > 1 && $count > 0 && !$plainText) {
@@ -186,13 +188,13 @@ class DebuggerUtility
      *
      * @throws \ReflectionException
      */
-    protected static function renderObject($object, $level, $plainText = false, $ansiColors = false)
+    protected static function renderObject($object, $level, $plainText = false, $ansiColors = false, $collapsed = true)
     {
-        $header = self::renderHeader($object, $level, $plainText, $ansiColors);
+        $header = self::renderHeader($object, $level, $plainText, $ansiColors,$collapsed);
         if ($level < self::$maxDepth && !self::isBlacklisted($object) &&
             !(self::isAlreadyRendered($object) && true !== $plainText)
         ) {
-            $content = self::renderContent($object, $level, $plainText, $ansiColors);
+            $content = self::renderContent($object, $level, $plainText, $ansiColors, $collapsed);
         } else {
             $content = '';
         }
@@ -216,8 +218,9 @@ class DebuggerUtility
      *
      * @throws \ReflectionException
      */
-    protected static function renderClosure($object, $level, $plainText = false, $ansiColors = false)
+    protected static function renderClosure($object, $level, $plainText = false, $ansiColors = false, $collapsed = true)
     {
+        $collapsed = $collapsed ? '': 'checked="true"';
         $header = self::renderHeader($object, $level, $plainText, $ansiColors);
         if ($level < self::$maxDepth && (!self::isAlreadyRendered($object) || $plainText)) {
             $content = self::renderContent($object, $level, $plainText, $ansiColors);
@@ -228,7 +231,7 @@ class DebuggerUtility
             return $header.$content;
         }
 
-        return '<span class="extbase-debugger-tree"><input type="checkbox" /><span class="extbase-debug-header">'.
+        return '<span class="extbase-debugger-tree"><input type="checkbox" '.$collapsed.'/><span class="extbase-debug-header">'.
             $header.'</span><span class="extbase-debug-content">'.$content.'</span></span>';
     }
 
@@ -275,8 +278,10 @@ class DebuggerUtility
      *
      * @throws \ReflectionException
      */
-    protected static function renderHeader($object, $level, $plainText, $ansiColors)
+    protected static function renderHeader($object, $level, $plainText, $ansiColors, $collapsed)
     {
+        $collapsed = $collapsed ? '': 'checked="true"';
+
         $dump = '';
         $className = get_class($object);
         $classReflection = new \ReflectionClass($className);
@@ -323,7 +328,7 @@ class DebuggerUtility
             if (($object instanceof \Countable && empty($object)) || empty($classReflection->getProperties())) {
                 $dump = '<span>'.$dump.'</span>';
             } else {
-                $dump = '<input type="checkbox" id="'.spl_object_hash($object).
+                $dump = '<input type="checkbox" '.$collapsed.' id="'.spl_object_hash($object).
                     '" /><span class="extbase-debug-header">'.$dump.'</span>';
             }
         }
@@ -348,11 +353,11 @@ class DebuggerUtility
      *
      * @throws \ReflectionException
      */
-    protected static function renderContent($object, $level, $plainText, $ansiColors)
+    protected static function renderContent($object, $level, $plainText, $ansiColors, $collapsed)
     {
         $dump = '';
         if ($object instanceof \Iterator || $object instanceof \ArrayObject) {
-            $dump .= self::renderCollection($object, $level, $plainText, $ansiColors);
+            $dump .= self::renderCollection($object, $level, $plainText, $ansiColors, $collapsed);
         }
         else
         {
@@ -456,7 +461,7 @@ class DebuggerUtility
                     } else {
                         $dump .= '<span class="extbase-debug-visibility">'.$visibility.'</span>';
                     }
-                    $dump .= self::renderDump($property->getValue($object), $level, $plainText, $ansiColors);
+                    $dump .= self::renderDump($property->getValue($object), $level, $plainText, $ansiColors,$collapsed);
                 }
             }
         }
@@ -475,7 +480,7 @@ class DebuggerUtility
      *
      * @throws \ReflectionException
      */
-    protected static function renderCollection($collection, $level, $plainText, $ansiColors)
+    protected static function renderCollection($collection, $level, $plainText, $ansiColors, $collapsed)
     {
         $dump = '';
         foreach ($collection as $key => $value) {
@@ -486,7 +491,7 @@ class DebuggerUtility
                 $dump .= '<span class="extbase-debug-property">'.htmlspecialchars($key).'</span>';
             }
             $dump .= ' => ';
-            $dump .= self::renderDump($value, $level, $plainText, $ansiColors);
+            $dump .= self::renderDump($value, $level, $plainText, $ansiColors,$collapsed);
         }
         if ($collection instanceof \Iterator && !$collection instanceof \Generator) {
             $collection->rewind();
@@ -522,6 +527,7 @@ class DebuggerUtility
         $variable,
         $title = null,
         $maxDepth = 8,
+        $collapsed = true,
         $plainText = false,
         $ansiColors = true,
         $return = false,
@@ -548,13 +554,13 @@ class DebuggerUtility
             self::$stylesheetEchoed = true;
         }
         if ($plainText) {
-            $output = $title.PHP_EOL.self::renderDump($variable, 0, true, $ansiColors).PHP_EOL.PHP_EOL;
+            $output = $title.PHP_EOL.self::renderDump($variable, 0, true, $ansiColors,$collapsed).PHP_EOL.PHP_EOL;
         } else {
             $output = '
 				<div class="extbase-debugger '.($return ? 'extbase-debugger-inline' : 'extbase-debugger-floating').'">
 				<div class="extbase-debugger-top">'.htmlspecialchars($title).'</div>
 				<div class="extbase-debugger-center">
-					<pre dir="ltr">'.self::renderDump($variable, 0, false, false).'</pre>
+					<pre dir="ltr">'.self::renderDump($variable, 0, false, false, false).'</pre>
 				</div>
 			</div>
 			';

@@ -9,7 +9,9 @@
  */
 
 namespace Alexanderthegreat96\DebuggerUtilityAlpha;
+
 use Alexanderthegreat96\DebuggerUtilityAlpha\Utility\OutputUtility;
+
 /**
  * This class is a port of the corresponding class of the TYPO3 CMS (v9.5).
  * All credits go to the TYPO3 team.
@@ -69,9 +71,9 @@ class DebuggerUtility
      * Renders a dump of the given value.
      *
      * @param mixed $value
-     * @param int   $level
-     * @param bool  $plainText
-     * @param bool  $ansiColors
+     * @param int $level
+     * @param bool $plainText
+     * @param bool $ansiColors
      *
      * @return string
      *
@@ -82,25 +84,25 @@ class DebuggerUtility
 
         $dump = '';
         if (is_string($value)) {
-            $croppedValue = strlen($value) > 2000 ? substr($value, 0, 2000).'...' : $value;
+            $croppedValue = strlen($value) > 2000 ? substr($value, 0, 2000) . '...' : $value;
             if ($plainText) {
                 $value = implode(
-                    PHP_EOL.str_repeat(self::PLAINTEXT_INDENT, $level + 1),
+                    PHP_EOL . str_repeat(self::PLAINTEXT_INDENT, $level + 1),
                     str_split($croppedValue, 76)
                 );
                 $dump = OutputUtility::ansiEscapeWrap(
-                    '"'.$value.'"',
+                    '"' . $value . '"',
                     '33',
                     $ansiColors
                 );
-                $dump .= ' ('.strlen($value).' chars)';
+                $dump .= ' (' . strlen($value) . ' chars)';
             } else {
                 $lines = str_split($croppedValue, 76);
                 $lines = array_map('htmlspecialchars', $lines);
                 $dump = sprintf(
                     '\'<span class="extbase-debug-string">%s</span>\' (%s chars)',
                     implode(
-                        '<br />'.str_repeat(self::HTML_INDENT, $level + 1),
+                        '<br />' . str_repeat(self::HTML_INDENT, $level + 1),
                         $lines
                     ),
                     strlen($value)
@@ -118,12 +120,12 @@ class DebuggerUtility
         } elseif (null === $value || is_resource($value)) {
             $dump = gettype($value);
         } elseif (is_array($value)) {
-            $dump = self::renderArray($value, $level + 1, $plainText, $ansiColors,$collapsed);
+            $dump = self::renderArray($value, $level + 1, $plainText, $ansiColors, $collapsed);
         } elseif (is_object($value)) {
             if ($value instanceof \Closure) {
-                $dump = self::renderClosure($value, $level + 1, $plainText, $ansiColors,$collapsed);
+                $dump = self::renderClosure($value, $level + 1, $plainText, $ansiColors, $collapsed);
             } else {
-                $dump = self::renderObject($value, $level + 1, $plainText, $ansiColors,$collapsed);
+                $dump = self::renderObject($value, $level + 1, $plainText, $ansiColors, $collapsed);
             }
         }
 
@@ -134,38 +136,40 @@ class DebuggerUtility
      * @param $collapse
      * @return string
      */
-    protected static function collapse($collapse = true) {
-        if($collapse) {
+    protected static function collapse($collapse = true)
+    {
+        if ($collapse) {
             return '';
         }
 
         return ' checked="checked"';
     }
+
     /**
      * Renders a dump of the given array.
      *
      * @param array|\Traversable $array
-     * @param int                $level
-     * @param bool               $plainText
-     * @param bool               $ansiColors
+     * @param int $level
+     * @param bool $plainText
+     * @param bool $ansiColors
      *
      * @return string
      *
      * @throws \ReflectionException
      */
-    protected static function renderArray($array, $level, $plainText = false, $ansiColors = false,$collapsed=true)
+    protected static function renderArray($array, $level, $plainText = false, $ansiColors = false, $collapsed=true)
     {
         $content = '';
-        $count = count((array) $array);
+        $count = count((array)$array);
         if ($plainText) {
             $header = OutputUtility::ansiEscapeWrap('array', '36', $ansiColors);
         } else {
             $header = '<span class="extbase-debug-type">array</span>';
         }
-        $header .= $count > 0 ? '('.$count.' item'.($count > 1 ? 's' : '').')' : '(empty)';
+        $header .= $count > 0 ? '(' . $count . ' item' . ($count > 1 ? 's' : '') . ')' : '(empty)';
         if ($level >= self::$maxDepth) {
             if ($plainText) {
-                $header .= ' '.OutputUtility::ansiEscapeWrap('max depth', '47;30', $ansiColors);
+                $header .= ' ' . OutputUtility::ansiEscapeWrap('max depth', '47;30', $ansiColors);
             } else {
                 $header .= '<span class="extbase-debug-filtered">max depth</span>';
             }
@@ -173,14 +177,14 @@ class DebuggerUtility
             $content = self::renderCollection($array, $level, $plainText, $ansiColors, $collapsed);
             if (!$plainText) {
                 $header = ($level > 1 && $count > 0 ?
-                        '<input type="checkbox" '.self::collapse($collapsed).'/><span class="extbase-debug-header" >' : '<span>').$header.'</span >';
+                        '<input type="checkbox" ' . self::collapse($collapsed) . '/><span class="extbase-debug-header" >' : '<span>') . $header . '</span >';
             }
         }
         if ($level > 1 && $count > 0 && !$plainText) {
-            $dump = '<span class="extbase-debugger-tree">'.$header.'<span class="extbase-debug-content">'.
-                $content.'</span></span>';
+            $dump = '<span class="extbase-debugger-tree">' . $header . '<span class="extbase-debug-content">' .
+                $content . '</span></span>';
         } else {
-            $dump = $header.$content;
+            $dump = $header . $content;
         }
 
         return $dump;
@@ -190,17 +194,17 @@ class DebuggerUtility
      * Renders a dump of the given object.
      *
      * @param object $object
-     * @param int    $level
-     * @param bool   $plainText
-     * @param bool   $ansiColors
+     * @param int $level
+     * @param bool $plainText
+     * @param bool $ansiColors
      *
      * @return string
      *
      * @throws \ReflectionException
      */
-    protected static function renderObject($object, $level, $plainText = false, $ansiColors = false, $collapsed)
+    protected static function renderObject($object, $level, $plainText = false, $ansiColors = false, $collapsed=false)
     {
-        $header = self::renderHeader($object, $level, $plainText, $ansiColors,$collapsed);
+        $header = self::renderHeader($object, $level, $plainText, $ansiColors, $collapsed);
         if ($level < self::$maxDepth && !self::isBlacklisted($object) &&
             !(self::isAlreadyRendered($object) && true !== $plainText)
         ) {
@@ -209,40 +213,39 @@ class DebuggerUtility
             $content = '';
         }
         if ($plainText) {
-            return $header.$content;
+            return $header . $content;
         }
 
-        return '<span class="extbase-debugger-tree">'.$header.'<span class="extbase-debug-content">'.
-            $content.'</span></span>';
+        return '<span class="extbase-debugger-tree">' . $header . '<span class="extbase-debug-content">' .
+            $content . '</span></span>';
     }
 
     /**
      * Renders a dump of the given closure.
      *
      * @param \Closure $object
-     * @param int      $level
-     * @param bool     $plainText
-     * @param bool     $ansiColors
+     * @param int $level
+     * @param bool $plainText
+     * @param bool $ansiColors
      *
      * @return string
      *
      * @throws \ReflectionException
      */
-    protected static function renderClosure($object, $level, $plainText = false, $ansiColors = false, $collapsed=true)
+    protected static function renderClosure($object, $level, $plainText = false, $ansiColors = false, $collapsed = false)
     {
-        $collapsed = $collapsed ? '': 'checked="true"';
-        $header = self::renderHeader($object, $level, $plainText, $ansiColors);
+        $header = self::renderHeader($object, $level, $plainText, $ansiColors, $collapsed);
         if ($level < self::$maxDepth && (!self::isAlreadyRendered($object) || $plainText)) {
-            $content = self::renderContent($object, $level, $plainText, $ansiColors,$collapsed);
+            $content = self::renderContent($object, $level, $plainText, $ansiColors, $collapsed);
         } else {
             $content = '';
         }
         if ($plainText) {
-            return $header.$content;
+            return $header . $content;
         }
 
-        return '<span class="extbase-debugger-tree"><input type="checkbox" '.self::collapse($collapsed).'/><span class="extbase-debug-header">'.
-            $header.'</span><span class="extbase-debug-content">'.$content.'</span></span>';
+        return '<span class="extbase-debugger-tree"><input type="checkbox" ' . self::collapse($collapsed) . '/><span class="extbase-debug-header">' .
+            $header . '</span><span class="extbase-debug-content">' . $content . '</span></span>';
     }
 
     /**
@@ -280,9 +283,9 @@ class DebuggerUtility
      * Renders the header of a given object/collection. It is usually the class name along with some flags.
      *
      * @param object $object
-     * @param int    $level
-     * @param bool   $plainText
-     * @param bool   $ansiColors
+     * @param int $level
+     * @param bool $plainText
+     * @param bool $ansiColors
      *
      * @return string The rendered header with tags
      *
@@ -290,7 +293,6 @@ class DebuggerUtility
      */
     protected static function renderHeader($object, $level, $plainText, $ansiColors, $collapsed)
     {
-        $collapsed = $collapsed ? '': 'checked=""';
 
         $dump = '';
         $className = get_class($object);
@@ -298,56 +300,56 @@ class DebuggerUtility
         if ($plainText) {
             $dump .= OutputUtility::ansiEscapeWrap($className, '36', $ansiColors);
         } else {
-            $dump .= '<span class="extbase-debug-type">'.htmlspecialchars($className).'</span>';
+            $dump .= '<span class="extbase-debug-type">' . htmlspecialchars($className) . '</span>';
         }
         if (!$object instanceof \Closure) {
             $scope = 'prototype';
             if ($plainText) {
-                $dump .= ' '.OutputUtility::ansiEscapeWrap($scope, '44;37', $ansiColors);
+                $dump .= ' ' . OutputUtility::ansiEscapeWrap($scope, '44;37', $ansiColors);
             } else {
-                $dump .= '<span class="extbase-debug-scope">'.$scope.'</span>';
+                $dump .= '<span class="extbase-debug-scope">' . $scope . '</span>';
             }
             $domainObjectType = 'object';
             if ($plainText) {
-                $dump .= ' '.OutputUtility::ansiEscapeWrap(
+                $dump .= ' ' . OutputUtility::ansiEscapeWrap(
                         $domainObjectType,
                         '42;30',
                         $ansiColors
                     );
             } else {
-                $dump .= '<span class="extbase-debug-ptype">'.$domainObjectType.'</span>';
+                $dump .= '<span class="extbase-debug-ptype">' . $domainObjectType . '</span>';
             }
         }
         if (strpos(implode('|', self::$blacklistedClassNames), get_class($object)) > 0) {
             if ($plainText) {
-                $dump .= ' '.OutputUtility::ansiEscapeWrap('filtered', '47;30', $ansiColors);
+                $dump .= ' ' . OutputUtility::ansiEscapeWrap('filtered', '47;30', $ansiColors);
             } else {
                 $dump .= '<span class="extbase-debug-filtered">filtered</span>';
             }
         } elseif (self::renderedObjectsContains($object) && !$plainText) {
-            $dump = '<a href="javascript:;" onclick="document.location.hash=\'#'.spl_object_hash($object).
-                '\';" class="extbase-debug-seeabove">'.$dump.
+            $dump = '<a href="javascript:;" onclick="document.location.hash=\'#' . spl_object_hash($object) .
+                '\';" class="extbase-debug-seeabove">' . $dump .
                 '<span class="extbase-debug-filtered">see above</span></a>';
         } elseif ($level >= self::$maxDepth && !$object instanceof \DateTimeInterface) {
             if ($plainText) {
-                $dump .= ' '.OutputUtility::ansiEscapeWrap('max depth', '47;30', $ansiColors);
+                $dump .= ' ' . OutputUtility::ansiEscapeWrap('max depth', '47;30', $ansiColors);
             } else {
                 $dump .= '<span class="extbase-debug-filtered">max depth</span>';
             }
         } elseif ($level > 1 && !$object instanceof \DateTimeInterface && !$plainText) {
             if (($object instanceof \Countable && empty($object)) || empty($classReflection->getProperties())) {
-                $dump = '<span>'.$dump.'</span>';
+                $dump = '<span>' . $dump . '</span>';
             } else {
-                $dump = '<input type="checkbox" '.self::collapse($collapsed).' id="'.spl_object_hash($object).
-                    '" /><span class="extbase-debug-header">'.$dump.'</span>';
+                $dump = '<input type="checkbox" ' . self::collapse($collapsed) . ' id="' . spl_object_hash($object) .
+                    '" /><span class="extbase-debug-header">' . $dump . '</span>';
             }
         }
         if ($object instanceof \Countable) {
             $objectCount = count($object);
-            $dump .= $objectCount > 0 ? ' ('.$objectCount.' items)' : ' (empty)';
+            $dump .= $objectCount > 0 ? ' (' . $objectCount . ' items)' : ' (empty)';
         }
         if ($object instanceof \DateTimeInterface) {
-            $dump .= ' ('.$object->format('Y-m-d\TH:i:sP').', '.$object->getTimestamp().')';
+            $dump .= ' (' . $object->format('Y-m-d\TH:i:sP') . ', ' . $object->getTimestamp() . ')';
         }
 
         return $dump;
@@ -355,9 +357,9 @@ class DebuggerUtility
 
     /**
      * @param object $object
-     * @param int    $level
-     * @param bool   $plainText
-     * @param bool   $ansiColors
+     * @param int $level
+     * @param bool $plainText
+     * @param bool $ansiColors
      *
      * @return string The rendered body content of the Object(Storage)
      *
@@ -368,17 +370,15 @@ class DebuggerUtility
         $dump = '';
         if ($object instanceof \Iterator || $object instanceof \ArrayObject) {
             $dump .= self::renderCollection($object, $level, $plainText, $ansiColors, $collapsed);
-        }
-        else
-        {
+        } else {
             self::$renderedObjects[] = $object;
             if (!$plainText) {
-                $dump .= '<a name="'.spl_object_hash($object).'" id="'.spl_object_hash($object).'"></a>';
+                $dump .= '<a name="' . spl_object_hash($object) . '" id="' . spl_object_hash($object) . '"></a>';
             }
             if ($object instanceof \Closure) {
-                $dump .= PHP_EOL.str_repeat(self::PLAINTEXT_INDENT, $level)
-                    .($plainText ? '' : '<span class="extbase-debug-closure">')
-                    .OutputUtility::ansiEscapeWrap('function (', '33', $ansiColors).($plainText ? '' : '</span>');
+                $dump .= PHP_EOL . str_repeat(self::PLAINTEXT_INDENT, $level)
+                    . ($plainText ? '' : '<span class="extbase-debug-closure">')
+                    . OutputUtility::ansiEscapeWrap('function (', '33', $ansiColors) . ($plainText ? '' : '</span>');
 
                 $reflectionFunction = new \ReflectionFunction($object);
                 $params = [];
@@ -429,9 +429,9 @@ class DebuggerUtility
                 }
                 $dump .= implode(', ', $params);
                 if ($plainText) {
-                    $dump .= OutputUtility::ansiEscapeWrap(') {'.PHP_EOL, '33', $ansiColors);
+                    $dump .= OutputUtility::ansiEscapeWrap(') {' . PHP_EOL, '33', $ansiColors);
                 } else {
-                    $dump .= '<span class="extbase-debug-closure">) {'.PHP_EOL.'</span>';
+                    $dump .= '<span class="extbase-debug-closure">) {' . PHP_EOL . '</span>';
                 }
                 $lines = file(strval($reflectionFunction->getFileName()));
                 for ($l = $reflectionFunction->getStartLine(); $l < $reflectionFunction->getEndLine() - 1; ++$l) {
@@ -439,7 +439,7 @@ class DebuggerUtility
                 }
                 $dump .= str_repeat(self::PLAINTEXT_INDENT, $level);
                 if ($plainText) {
-                    $dump .= OutputUtility::ansiEscapeWrap('}'.PHP_EOL, '33', $ansiColors);
+                    $dump .= OutputUtility::ansiEscapeWrap('}' . PHP_EOL, '33', $ansiColors);
                 } else {
                     $dump .= '<span class="extbase-debug-closure">}</span>';
                 }
@@ -455,23 +455,25 @@ class DebuggerUtility
                     if (self::isBlacklisted($property)) {
                         continue;
                     }
-                    $dump .= PHP_EOL.str_repeat(self::PLAINTEXT_INDENT, $level);
+                    $dump .= PHP_EOL . str_repeat(self::PLAINTEXT_INDENT, $level);
                     if ($plainText) {
                         $dump .= OutputUtility::ansiEscapeWrap($property->getName(), '37', $ansiColors);
                     } else {
                         $dump .= '<span class="extbase-debug-property">'
-                            .htmlspecialchars($property->getName()).'</span>';
+                            . htmlspecialchars($property->getName()) . '</span>';
                     }
                     $dump .= ' => ';
                     $property->setAccessible(true);
+
                     $visibility = ($property->isProtected() ? 'protected' :
                         ($property->isPrivate() ? 'private' : 'public'));
                     if ($plainText) {
-                        $dump .= OutputUtility::ansiEscapeWrap($visibility, '42;30', $ansiColors).' ';
+                        $dump .= OutputUtility::ansiEscapeWrap($visibility, '42;30', $ansiColors) . ' ';
                     } else {
-                        $dump .= '<span class="extbase-debug-visibility">'.$visibility.'</span>';
+                        $dump .= '<span class="extbase-debug-visibility">' . $visibility . '</span>';
                     }
-                    $dump .= self::renderDump($property->getValue($object), $level, $plainText, $ansiColors,$collapsed);
+
+                    $dump .= self::renderDump($property->isInitialized($object) ? $property->getValue($object) : new $object(), $level, $plainText, $ansiColors, $collapsed);
                 }
             }
         }
@@ -482,9 +484,9 @@ class DebuggerUtility
 
     /**
      * @param mixed $collection
-     * @param int   $level
-     * @param bool  $plainText
-     * @param bool  $ansiColors
+     * @param int $level
+     * @param bool $plainText
+     * @param bool $ansiColors
      *
      * @return string
      *
@@ -494,14 +496,14 @@ class DebuggerUtility
     {
         $dump = '';
         foreach ($collection as $key => $value) {
-            $dump .= PHP_EOL.str_repeat(self::PLAINTEXT_INDENT, $level);
+            $dump .= PHP_EOL . str_repeat(self::PLAINTEXT_INDENT, $level);
             if ($plainText) {
                 $dump .= OutputUtility::ansiEscapeWrap($key, '37', $ansiColors);
             } else {
-                $dump .= '<span class="extbase-debug-property">'.htmlspecialchars($key).'</span>';
+                $dump .= '<span class="extbase-debug-property">' . htmlspecialchars($key) . '</span>';
             }
             $dump .= ' => ';
-            $dump .= self::renderDump($value, $level, $plainText, $ansiColors,$collapsed);
+            $dump .= self::renderDump($value, $level, $plainText, $ansiColors, $collapsed);
         }
         if ($collection instanceof \Iterator && !$collection instanceof \Generator) {
             $collection->rewind();
@@ -513,19 +515,19 @@ class DebuggerUtility
     /**
      * A var_dump function optimized for Extbase's object structures.
      *
-     * @param mixed  $variable                 The value to dump
-     * @param string $title                    optional custom title for the debug output
-     * @param int    $maxDepth                 Sets the max recursion depth of the dump. De- or increase the number
+     * @param mixed $variable The value to dump
+     * @param string $title optional custom title for the debug output
+     * @param int $maxDepth Sets the max recursion depth of the dump. De- or increase the number
      *                                         according to your needs and memory limit.
-     * @param bool   $plainText                if TRUE, the dump is in plain text, if FALSE the debug output is in HTML
+     * @param bool $plainText if TRUE, the dump is in plain text, if FALSE the debug output is in HTML
      *                                         format
-     * @param bool   $ansiColors               if TRUE (default), ANSI color codes is added to the output, if FALSE the
+     * @param bool $ansiColors if TRUE (default), ANSI color codes is added to the output, if FALSE the
      *                                         debug output  not colored
-     * @param bool   $return                   if TRUE, the dump is returned for custom post-processing (e.g. embed in
+     * @param bool $return if TRUE, the dump is returned for custom post-processing (e.g. embed in
      *                                         custom HTML). If FALSE (default), the dump is directly displayed.
-     * @param array  $blacklistedClassNames    An array of class names (RegEx) to be filtered. Default is an array of
+     * @param array $blacklistedClassNames An array of class names (RegEx) to be filtered. Default is an array of
      *                                         some common class names.
-     * @param array  $blacklistedPropertyNames An array of property names and/or array keys (RegEx) to be filtered.
+     * @param array $blacklistedPropertyNames An array of property names and/or array keys (RegEx) to be filtered.
      *                                         Default is an array of some common property names.
      *
      * @return string if $return is TRUE, the dump is returned. By default, the dump is directly displayed, and nothing
@@ -543,11 +545,12 @@ class DebuggerUtility
         $return = false,
         $blacklistedClassNames = null,
         $blacklistedPropertyNames = null
-    ) {
+    )
+    {
         self::$maxDepth = $maxDepth;
         $title = (null === $title ? self::DEFAULT_TITLE : $title);
         $ansiColors = $plainText && $ansiColors;
-        $title = boolval($ansiColors) ? '[1m'.$title.'[0m' : $title;
+        $title = boolval($ansiColors) ? '[1m' . $title . '[0m' : $title;
         $backupBlacklistedClassNames = self::$blacklistedClassNames;
         if (is_array($blacklistedClassNames)) {
             self::$blacklistedClassNames = $blacklistedClassNames;
@@ -559,18 +562,18 @@ class DebuggerUtility
         self::clearState();
         $css = '';
         if (!$plainText && false === self::$stylesheetEchoed) {
-            $styleContent = file_get_contents(__DIR__.'/../res/style.css');
-            $css = '<style type=\'text/css\'>'.$styleContent.'</style>';
+            $styleContent = file_get_contents(__DIR__ . '/../res/style.css');
+            $css = '<style type=\'text/css\'>' . $styleContent . '</style>';
             self::$stylesheetEchoed = true;
         }
         if ($plainText) {
-            $output = $title.PHP_EOL.self::renderDump($variable, 0, true, $ansiColors,$collapsed).PHP_EOL.PHP_EOL;
+            $output = $title . PHP_EOL . self::renderDump($variable, 0, true, $ansiColors, $collapsed) . PHP_EOL . PHP_EOL;
         } else {
             $output = '
-				<div class="extbase-debugger '.($return ? 'extbase-debugger-inline' : 'extbase-debugger-floating').'">
-				<div class="extbase-debugger-top">'.htmlspecialchars($title).'</div>
+				<div class="extbase-debugger ' . ($return ? 'extbase-debugger-inline' : 'extbase-debugger-floating') . '">
+				<div class="extbase-debugger-top">' . htmlspecialchars($title) . '</div>
 				<div class="extbase-debugger-center">
-					<pre dir="ltr">'.self::renderDump($variable, 0, false, false, $collapsed).'</pre>
+					<pre dir="ltr">' . self::renderDump($variable, 0, false, false, $collapsed) . '</pre>
 				</div>
 			</div>
 			';
@@ -578,9 +581,9 @@ class DebuggerUtility
         self::$blacklistedClassNames = $backupBlacklistedClassNames;
         self::$blacklistedPropertyNames = $backupBlacklistedPropertyNames;
         if (true === $return) {
-            return $css.$output;
+            return $css . $output;
         }
-        echo $css.$output;
+        echo $css . $output;
 
         return '';
     }

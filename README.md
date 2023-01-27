@@ -1,8 +1,8 @@
 
-# Debugger Utility
+# TYPO3 Debugger Utility ALPHA
 
 TYPO3 DebuggerUtility::var_dump() dependency free and running outside Typo3 itself.
-This version accomodates PHP 8.0+ and basically any platform
+This version accommodates PHP 8.0+ and basically any platform
 
 
 ## Installation
@@ -17,22 +17,33 @@ Install with composer
 
 ```php
 <?php
-use Alexanderthegreat96\DebuggerUtilityAlpha;
-require "debugger-utility-alpha/vendor/autoload.php"
+require "vendor/autoload.php";
 
-$array = [
-    'this-key => 'Is for multidimensional array'
-];
+$cars = array (
+  array("Volvo",22,18),
+  array("BMW",15,13),
+  array("Saab",5,2),
+  array("Land Rover",17,15)
+);
 
-DebuggerUtility::var_dump('my-array',$array);
-
+debugger_utility($cars, 'This is my cars Array');
 ```
 or
-
 ```php
 <?php
-require "vendor/autoload";
+use Alexanderthegreat96\DebuggerUtilityAlpha;
+require "vendor/autoload.php"
 
-debugger_utility(my-array);
+$cars = array (
+  array("Volvo",22,18),
+  array("BMW",15,13),
+  array("Saab",5,2),
+  array("Land Rover",17,15)
+);
+
+DebuggerUtility::var_dump($cars, 'This is my cars Array');
+
 ```
+
+
 

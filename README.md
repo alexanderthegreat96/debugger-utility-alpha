@@ -1,7 +1,8 @@
 
-# Debugger Utility Alpha
+# Debugger Utility
 
-Typo3 Debugger Utility var dumper ported to php 8 and for all platforms
+TYPO3 DebuggerUtility::var_dump() dependency free and running outside Typo3 itself.
+This version accomodates PHP 8.0+ and basically any platform
 
 
 ## Installation
@@ -25,5 +26,13 @@ $array = [
 
 DebuggerUtility::var_dump('my-array',$array);
 
+```
+or
+
+```php
+<?php
+require "vendor/autoload";
+
+debugger_utility(my-array);
 ```
 
